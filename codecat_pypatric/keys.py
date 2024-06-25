@@ -50,7 +50,12 @@ VEL_Y = 'velocity_y'
 VEL_Z = 'velocity_z'
 
 GAMMA = 'gamma'
-# E_FIELD and B_FIELD are also accepted as dump variables.
+E_FIELD_X = 'e_field_x'
+E_FIELD_Y = 'e_field_y'
+E_FIELD_Z = 'e_field_z'
+B_FIELD_X = 'b_field_x'
+B_FIELD_Y = 'b_field_y'
+B_FIELD_Z = 'b_field_z'
 
 
 

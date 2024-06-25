@@ -161,7 +161,7 @@ def validateEntries(control: dict, particle: dict, fields:dict, output: dict):
 
 
     # Step 4: Output deck
-    availableVars = (POS_X, POS_Y, POS_Z, VEL_X, VEL_Y, VEL_Z, GAMMA)
+    availableVars = (POS_X, POS_Y, POS_Z, VEL_X, VEL_Y, VEL_Z, GAMMA, E_FIELD_X, E_FIELD_Y, E_FIELD_Z, B_FIELD_X, B_FIELD_Y, B_FIELD_Z)
     for dumpVar in output[DUMP_VARIABLES]:
         if dumpVar not in availableVars:
             raise KeyError(f'Invalid dump variable: {dumpVar}')
