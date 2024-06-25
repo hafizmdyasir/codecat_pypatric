@@ -17,7 +17,7 @@ Classes that represent various types of electric and magnetic field geometries. 
 
 
 
-# POSITION INITIALIZATION
+
 class Random:
     '''
     Represents a random distribution between minimum and maximum.
