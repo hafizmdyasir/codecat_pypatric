@@ -147,7 +147,7 @@ def validateEntries(control: dict, particle: dict, fields:dict, output: dict):
     
     if not isinstance(particle[INITIAL_VELOCITY], tuple):
         raise KeyError(f'Invalid INITIAL_VELOCITY: {particle[INITIAL_VELOCITY]} - Must be a tuple.')
-    elif type(particle[INITIAL_VELOCITY]) not in [Static, Uniform, Maxwellian]:
+    elif type(particle[INITIAL_VELOCITY][0]) not in [Static, Uniform, Maxwellian]:
             raise KeyError(f'Invalid INITIAL_VELOCITY. Expected either of (Static, Uniform, Maxwellian).')
     
     
