@@ -24,20 +24,22 @@ class PointCharge:
     '''
     Represents a point charge field.
     '''
-    def __init__(self, x: float, y: float , z: float):
+    def __init__(self, x: float, y: float , z: float, q: float):
         '''
         Parameters
         ----------
         x: The x coordinate of the point charge's location.
         y: The y coordinate of the point charge's location.
         z: The z coordinate of the point charge's location.
+        q: The charge of the point charge.
         '''
         self.x = x
         self.y = y
         self.z = z
+        self.q = q
 
     def __str__(self) -> str:
-        return f'PointCharge({self.x, self.y, self.z})'
+        return f'PointCharge({self.x, self.y, self.z, self.q})'
     
     def __repr__(self) -> str:
         return self.__str__()
