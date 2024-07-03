@@ -1,7 +1,7 @@
 '''
 DECK TOOLS.py
 =============
-Created: 13.06.2024
+Created: 03.07.2024
 
 Copyright
 Mohammad Yasir
@@ -11,161 +11,157 @@ All rights reserved. No part of this code may be used, modified, shared, or repr
 
 DESCRIPTION
 -----------
-Insert defaults and validate deck
+Tools to help write the deck
 '''
 
-from keys import *
+
+from inspect import signature
+from typing import Tuple
+
+from electric import *
+from magnetic import *
 from classes import *
+from keys import *
 
 
-def __insertIfNotExists(dictionary: dict, key: str, value):
-    '''Insert a value into the dictionary only if not present.'''
-    if key not in dictionary.keys():
-        dictionary[key] = value
+Control = {}
+Particle = {}
+Fields = {}
+Output = {}
 
 
-
-
-def insertDefaults(control: dict, particle: dict, fields: dict, output: dict):
-    '''Check and insert defaults in the deck.'''
-
-    # Validate control deck
-    control[NUM_ITERS] = int(control[NUM_ITERS])
-    control[READOUT_FREQ] = int(control[READOUT_FREQ])
-    control[INTEGRATOR] = int(control[INTEGRATOR])
-    
-    # Particle dict
-    particle[MASS] = float(particle[MASS])
-    particle[CHARGE] = float(particle[CHARGE])
-    
-    __insertIfNotExists(particle, PARTICLE_COUNT, 1)
-    __insertIfNotExists(fields, E_FIELD, tuple([]))
-    __insertIfNotExists(fields, B_FIELD, tuple([]))
-
-    # Output dict
-    __insertIfNotExists(output, FILEPATH, '')
-    __insertIfNotExists(output, FILE_HEADER, tuple([]))
-
-    if (len(output[FILEPATH]) > 0) and not str(output[FILEPATH]).endswith('/'):
-        output[FILEPATH] = output[FILEPATH] + '/'
-
-
-
-def validatePresence(control: dict, particle: dict, fields:dict, output: dict):
+def createControl(
+        timeStep: float, numiterations: int,
+        integrator: int, readoutFreq: int):
     '''
-    Validates the input deck for required arguments. Only checks presence and not correctness.
+    Create the control dict.
+    Parameters:
+        timeStep : float The time step dt.
+        numiterations : int The number of iterations to run the program for.
+        integrator : int The numerical integration method to use. Must be one of BORIS, VAY, or HIGUERA_CARY.
+        readoutFreq : int The frequency at which to show a small output message. Zero or negative to turn off.
     '''
 
-    # Step 1: Validate control dict. All keys are required.
-    given_keys = control.keys()
-    if TIME_STEP not in given_keys:
-        raise KeyError(f'Missing control key: TIME_STEP')
-    
-    if NUM_ITERS not in given_keys:
-        raise KeyError(f'Missing control keu: NUM_ITERS')
-    
-    if INTEGRATOR not in given_keys:
-        raise KeyError(f'Missing control key: INTEGRATOR')
-    
-    if READOUT_FREQ not in given_keys:
-        raise KeyError(f'Missing control key: READOUT_FREQ')
-    
-    # Step 2: Check particle dict.
-    given_keys = particle.keys()
-    if MASS not in given_keys:
-        raise KeyError(f'Missing particle key: MASS')
-    
-    if CHARGE not in given_keys:
-        raise KeyError(f'Missing particle key: CHARGE')
-    
-    if PARTICLE_COUNT not in given_keys:
-        raise KeyError(f'Missing particle key: PARTICLE_COUNT')
+    # Validate inputs.
+    if timeStep <= 0:
+        raise ValueError('Time step must be a positive float.')
+    if numiterations <= 0:
+        raise ValueError('Number of iterations must be a positive integer.')
+    if integrator not in [BORIS, VAY, HIGUERA_CARY]:
+        raise ValueError(f'Invalid integrator. Must be one of BORIS, VAY, or HIGUERA_CARY.')
 
-    if INITIAL_POSITION not in given_keys:
-        raise KeyError(f'Missing particle keys related to initial position.')
-    
-    if INITIAL_VELOCITY not in given_keys:
-        raise KeyError(f'Missing particle keys related to initial velocity.')
-    
-
-    # Step 3: Validate field dict.
-    given_keys = fields.keys()
-    if E_FIELD not in given_keys:
-        raise KeyError(f'Missing field keys related to electric field.')
-    
-    if B_FIELD not in given_keys:
-        raise KeyError(f'Missing field keys related to magnetic field.')
-    
-
-    # Step 4: Validate output dict.
-    if FILENAME not in output.keys():
-        raise KeyError(f'Missing output key: FILENAME')
-    
-    if FILEPATH not in output.keys():
-        raise KeyError(f'Missing output key: FILEPATH')
-    
-    if FILE_HEADER not in output.keys():
-        raise KeyError(f'Missing output key: FILE_HEADER')
-    
-    if DUMP_VARIABLES not in output.keys():
-        raise KeyError(f'Missing output key: DUMP_VARIABLES')
-    
+    global Control
+    Control[TIME_STEP] = timeStep
+    Control[NUM_ITERS] = numiterations
+    Control[INTEGRATOR] = integrator
+    Control[READOUT_FREQ] = readoutFreq
 
 
-def validateEntries(control: dict, particle: dict, fields:dict, output: dict):
-    '''Validate the values entered in the dictionaries.'''
 
-    # Step 1: Control deck
-    if not isinstance(control[TIME_STEP], float) or control[TIME_STEP] <= 0:
-        raise KeyError(f'Invalid TIME_STEP: {control[TIME_STEP]} - Must be a positive float.')
+def createParticles(
+        mass: float, charge: float, particleCount: int,
+        initialPosition: Tuple,
+        initialVelocity: Tuple):
+    '''
+    Create the particle dict.
+    Parameters:
+        mass : float The mass of the particle in multiple of electronic mass.
+        charge : float The charge of the particle in multiples of fundamental charge.
+        initialPosition : Tuple The initial position(s) of the particle(s)
+        initialVelocity : Tuple The initial velocity(s) of the particle(s)
+    '''
+
+    # Validate inputs.
+    if mass <= 0:
+        raise ValueError('Mass must be a positive float.')
+    if particleCount <= 0:
+        raise ValueError('Particle count must be a positive integer.')
+    if len(initialPosition) < 1:
+        raise ValueError('Initial position must be a tuple with at least one element.')
+    if len(initialVelocity) < 1:
+        raise ValueError('Initial velocity must be a tuple with at least one element.')
     
-    if not isinstance(control[NUM_ITERS], int) or control[NUM_ITERS] <= 0:
-        raise KeyError(f'Invalid NUM_ITERS: {control[NUM_ITERS]} - Must be a positive integer.')
+    # Ensure that the initial positions provided are in correct format
+    for r in initialPosition:
+        if type(r) not in (Static, Uniform, Random):
+            raise ValueError('Initial positions must be Static, Uniform, or Random objects.')
     
-    if not isinstance(control[INTEGRATOR], int) or not (BORIS <= control[INTEGRATOR] <= HIGUERA_CARY):
-        raise KeyError(f'Invalid INTEGRATOR: {control[INTEGRATOR]} - Must be one of (BORIS, VAY, HIGUERA_CARY).')
-    
-    if not isinstance(control[READOUT_FREQ], int):
-        raise KeyError(f'Invalid READOUT_FREQ: {control[READOUT_FREQ]} - Must be an integer.')
-    
-    
-    # Step 2: Particle deck
-    if not isinstance(particle[MASS], float) or particle[MASS] <= 0:
-        raise KeyError(f'Invalid MASS: {particle[MASS]} - Must be a positive float.')
-    
-    if not isinstance(particle[CHARGE], float):
-        raise KeyError(f'Invalid CHARGE: {particle[CHARGE]} - Must be a float.')
-    
-    if not isinstance(particle[PARTICLE_COUNT], int) or particle[PARTICLE_COUNT] <= 0:
-        raise KeyError(f'Invalid PARTICLE_COUNT: {particle[PARTICLE_COUNT]} - Must be a positive integer.')
-    
-    if not isinstance(particle[INITIAL_POSITION], tuple):
-        raise KeyError(f'Invalid INITIAL_POSITION: {particle[INITIAL_POSITION]} - Must be a tuple.')
+    for v in initialVelocity:
+        if type(v) not in (Static, Uniform, Maxwellian):
+            raise ValueError('Initial velocities must be Static, Uniform, or Maxwellian objects.')
+        
+
+    global Particle
+    Particle[MASS] = mass
+    Particle[CHARGE] = charge
+    Particle[PARTICLE_COUNT] = particleCount
+    Particle[INITIAL_POSITION] = initialPosition
+    Particle[INITIAL_VELOCITY] = initialVelocity
+
+
+def createFields(
+        electricFields: Tuple | callable,
+        magneticFields: Tuple | callable):
+    '''
+    Create the fields dict. 
+    Parameters:
+        electricFields : Tuple | callable The electric field(s). The total field 
+        magneticFields : Tuple | callable The magnetic field(s)
+    '''
+
+    supportedEleFields = (Static, SinField, GaussField, PointCharge, ElectricDipole)
+    supportedMagFields = (Static, SinField, GaussField, Wire, Coil)
+
+    # Validate inputs.
+    if isinstance(electricFields, Tuple):
+        for e in electricFields:
+            if type(e) not in supportedEleFields:
+                raise ValueError(f'Electric fields must be one of {supportedEleFields}.')
     else:
-        if type(particle[INITIAL_POSITION][0]) not in [Static, Uniform, Random]:
-            raise KeyError(f'Invalid INITIAL_POSITION. Expected either of (Static, Uniform, Random).')
+        if len(signature(electricFields).parameters) != 4:
+            raise ValueError('Electric field as a function must take four parameters: x, y, z, and t.')
     
-    if not isinstance(particle[INITIAL_VELOCITY], tuple):
-        raise KeyError(f'Invalid INITIAL_VELOCITY: {particle[INITIAL_VELOCITY]} - Must be a tuple.')
-    elif type(particle[INITIAL_VELOCITY][0]) not in [Static, Uniform, Maxwellian]:
-            raise KeyError(f'Invalid INITIAL_VELOCITY. Expected either of (Static, Uniform, Maxwellian).')
-    
-    
-    # Step 3: Field deck
-    if not isinstance(fields[E_FIELD], tuple) and not callable(fields[E_FIELD]):
-        raise KeyError(f'Invalid E_FIELD: {fields[E_FIELD]} - Must be a tuple or a function.')
-    
-    if not isinstance(fields[B_FIELD], tuple) and not callable(fields[B_FIELD]):
-        raise KeyError(f'Invalid B_FIELD: {fields[B_FIELD]} - Must be a tuple or a function.')
-    
+    if isinstance(magneticFields, Tuple):
+        for b in magneticFields:
+            if type(b) not in supportedMagFields:
+                raise ValueError(f'Magnetic fields must be one of {supportedMagFields}.')
+    else:
+        if len(signature(magneticFields).parameters) != 4:
+            raise ValueError('Magnetic field as a function must take four parameters: x, y, z, and t.')
+        
+    global Fields
+    Fields[E_FIELD] = electricFields
+    Fields[B_FIELD] = magneticFields
 
 
-    # Step 4: Output deck
-    availableVars = (POS_X, POS_Y, POS_Z, VEL_X, VEL_Y, VEL_Z, GAMMA, E_FIELD_X, E_FIELD_Y, E_FIELD_Z, B_FIELD_X, B_FIELD_Y, B_FIELD_Z)
-    for dumpVar in output[DUMP_VARIABLES]:
-        if dumpVar not in availableVars:
-            raise KeyError(f'Invalid dump variable: {dumpVar}')
+def createOutput(
+        fileName: str, filePath: str,
+        fileHeaders: Tuple[str, ...], dumpVariables: Tuple[str, ...]):
+    '''
+    Create the output dict.
+    Parameters:
+        fileName : str The name of the output file.
+        filePath : str The path to the output file.
+        fileHeaders : Tuple[str,...] The headers to include in the info file.
+        dumpVariables : Tuple[str,...] The variables to dump in the output file.
+    '''
 
+    # Validate inputs.
+    supportedDumpVariables = (
+        POS_X, POS_Y, POS_Z, 
+        VEL_X, VEL_Y, VEL_Z, 
+        E_FIELD_X, E_FIELD_Y, E_FIELD_Z,
+        B_FIELD_X, B_FIELD_Y, B_FIELD_Z,
+        GAMMA)
 
+    if not fileName:
+        raise ValueError('Output file name cannot be empty.')
+    for v in dumpVariables:
+        if v not in supportedDumpVariables:
+            raise ValueError(f'Invalid dump variable. Must be one of {supportedDumpVariables}.')
 
-    
+    global Output
+    Output[FILENAME] = fileName
+    Output[FILEPATH] = filePath
+    Output[FILE_HEADER] = fileHeaders
+    Output[DUMP_VARIABLES] = dumpVariables
