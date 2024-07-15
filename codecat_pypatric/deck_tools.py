@@ -136,13 +136,14 @@ def createFields(
 
 def createOutput(
         fileName: str, filePath: str,
-        fileHeaders: Tuple[str, ...], dumpVariables: Tuple[str, ...]):
+        fileHeaders: Tuple[str, ...], dumpInfoFile: bool, dumpVariables: Tuple[str, ...]):
     '''
     Create the output dict.
     Parameters:
         fileName : str The name of the output file.
         filePath : str The path to the output file.
         fileHeaders : Tuple[str,...] The headers to include in the info file.
+        dumpInfoFile : bool Whether to dump info file.
         dumpVariables : Tuple[str,...] The variables to dump in the output file.
     '''
 
@@ -164,4 +165,5 @@ def createOutput(
     Output[FILENAME] = fileName
     Output[FILEPATH] = filePath
     Output[FILE_HEADER] = fileHeaders
+    Output[DUMP_INFO_FILE] = dumpInfoFile
     Output[DUMP_VARIABLES] = dumpVariables
