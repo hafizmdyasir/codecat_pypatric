@@ -110,7 +110,7 @@ def createFields(
     '''
 
     supportedEleFields = (Static, SinField, GaussField, PointCharge, ElectricDipole)
-    supportedMagFields = (Static, SinField, GaussField, Wire, Coil)
+    supportedMagFields = (Static, SinField, GaussField, Coil)
 
     # Validate inputs.
     if isinstance(electricFields, Tuple):

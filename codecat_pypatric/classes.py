@@ -21,7 +21,11 @@ Serves as the base file and more geometries are defined in files electric.py and
 
 from typing import Literal
 
-variablesDictionary = {'T': 0, 'X': 1, 'Y': 2, 'Z': 3}  
+variablesDictionary = {
+    'T': 0, 't': 0, 'time': 0,
+    'X': 1, 'Y': 2, 'Z': 3,
+    'x': 1, 'y': 2, 'z': 3,
+}
 
 
 
@@ -125,7 +129,7 @@ class SinField:
     Represents an electric/magnetic field that varies sinusodially in either time, x, y, or z. 
     That is, the field will be calculated as f = sin(omega*variable + phi)
     '''
-    def __init__(self, variable: Literal['X', 'Y', 'Z', 'T'], omega: float, phi: float = 0):
+    def __init__(self, variable: Literal['X', 'Y', 'Z', 'x', 'y', 'z', 't', 'time'], amplitude:float, omega: float, phi: float = 0):
         '''
         Parameters
         ----------
@@ -134,11 +138,12 @@ class SinField:
         phi: The phase of the field (if any).
         '''  
         self.variable = variablesDictionary[variable]
+        self.amplitude = amplitude
         self.omega = omega
         self.phi = phi
 
     def __str__(self) -> str:
-        return f'SinField({self.variable}, {self.omega}, {self.phi})'
+        return f'SinField({self.variable}, {self.amplitude}, {self.omega}, {self.phi})'
     
     def __repr__(self) -> str:
         return self.__str__()
@@ -150,7 +155,7 @@ class GaussField:
     The field will be calculated as f = a * exp( ((variable-b) / c)**m)
     The default value for m is 2. Support is provided for other powers.
     '''
-    def __init__(self, variable: Literal['X', 'Y', 'Z', 'T'], a: float, b: float, c: float, m: float = 2):
+    def __init__(self, variable: Literal['X', 'Y', 'Z', 'x', 'y', 'z', 't', 'time'], a: float, b: float, c: float, m: float = 2):
         '''
         Parameters
         ----------
