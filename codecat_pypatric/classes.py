@@ -15,18 +15,13 @@ Classes that represent various types of electric and magnetic field geometries.
 Serves as the base file and more geometries are defined in files electric.py and magnetic.py
 '''
 
+from typing import Literal, Dict
 
-
-
-
-from typing import Literal
-
-variablesDictionary = {
+variablesDictionary: Dict[str, int] = {
     'T': 0, 't': 0, 'time': 0,
     'X': 1, 'Y': 2, 'Z': 3,
     'x': 1, 'y': 2, 'z': 3,
 }
-
 
 
 class Random:
@@ -72,7 +67,7 @@ class Uniform:
     
 
     def __str__(self) -> str:
-        return "Uniform" + f"({self.minimum[0], self.minimum[1], self.minimum[2], self.maximum[0], self.maximum[1], self.maximum[2]})"
+        return "Uniform" + f"{self.minimum[0], self.minimum[1], self.minimum[2], self.maximum[0], self.maximum[1], self.maximum[2]}"
     
     def __repr__(self) -> str:
         return self.__str__()
@@ -94,7 +89,7 @@ class Maxwellian:
     
 
     def __str__(self) -> str:
-        return f'Maxwellian({self.temperature[0], self.temperature[1], self.temperature[2]}'
+        return f'Maxwellian{self.temperature[0], self.temperature[1], self.temperature[2]}'
     
     def __repr__(self) -> str:
         return self.__str__()
@@ -129,7 +124,7 @@ class SinField:
     Represents an electric/magnetic field that varies sinusodially in either time, x, y, or z. 
     That is, the field will be calculated as f = sin(omega*variable + phi)
     '''
-    def __init__(self, variable: Literal['X', 'Y', 'Z', 'x', 'y', 'z', 't', 'time'], amplitude:float, omega: float, phi: float = 0):
+    def __init__(self, variable: Literal['X', 'Y', 'Z', 'T'], direction: Literal['X' 'Y', 'Z'], amp: float, omega: float, phi: float = 0):
         '''
         Parameters
         ----------
@@ -138,12 +133,13 @@ class SinField:
         phi: The phase of the field (if any).
         '''  
         self.variable = variablesDictionary[variable]
-        self.amplitude = amplitude
+        self.direction = variablesDictionary[direction]
+        self.amplitude = amp
         self.omega = omega
         self.phi = phi
 
     def __str__(self) -> str:
-        return f'SinField({self.variable}, {self.amplitude}, {self.omega}, {self.phi})'
+        return f'SinField({self.variable}, {self.direction}, {self.amplitude}, {self.omega}, {self.phi})'
     
     def __repr__(self) -> str:
         return self.__str__()
@@ -155,24 +151,25 @@ class GaussField:
     The field will be calculated as f = a * exp( ((variable-b) / c)**m)
     The default value for m is 2. Support is provided for other powers.
     '''
-    def __init__(self, variable: Literal['X', 'Y', 'Z', 'x', 'y', 'z', 't', 'time'], a: float, b: float, c: float, m: float = 2):
+    def __init__(self, variable: Literal['X', 'Y', 'Z', 'T'], direction: Literal['X' 'Y', 'Z'], a: float, b: float, c: float, m: float = 2):
         '''
         Parameters
         ----------
         variable: The variable in which, the field varies.
         a: The amplitude of the field.
-        b: The mean of the field.
-        c: The standard deviation of the field.
+        b: The center of the field.
+        c: The fwhm of the field.
         m: Optional parameter to provide support for Super Gauss functions.
         '''
         self.variable = variablesDictionary[variable]
-        self.a = a
-        self.b = b
-        self.c = c
+        self.direction = variablesDictionary[direction]
+        self.amp = a
+        self.center = b
+        self.fwhm = c
         self.m = m
 
     def __str__(self) -> str:
-        return f'GaussField({self.variable}, {self.a}, {self.b}, {self.c}, {self.m})'
+        return f'GaussField({self.variable}, {self.direction}, {self.amp}, {self.center}, {self.fwhm}, {self.m})'
     
     def __repr__(self) -> str:
         return self.__str__()

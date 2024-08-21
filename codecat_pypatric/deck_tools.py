@@ -16,7 +16,7 @@ Tools to help write the deck
 
 
 from inspect import signature
-from typing import Tuple
+from typing import Callable, Tuple
 
 from electric import *
 from magnetic import *
@@ -28,6 +28,11 @@ Control = {}
 Particle = {}
 Fields = {}
 Output = {}
+
+
+def __showError(errorMessage: str, errorCode: int):
+    print(f'\nERROR {errorCode} ENCOUNTERED WHILE PARSING INPUT SCRIPT:\n{errorMessage}\n')
+    exit(errorCode)
 
 
 def createControl(
@@ -44,11 +49,11 @@ def createControl(
 
     # Validate inputs.
     if timeStep <= 0:
-        raise ValueError('Time step must be a positive float.')
+        __showError('Time step must be a positive float', 101)
     if numiterations <= 0:
-        raise ValueError('Number of iterations must be a positive integer.')
+        __showError('Number of iterations must be a positive integer', 101)
     if integrator not in [BORIS, VAY, HIGUERA_CARY]:
-        raise ValueError(f'Invalid integrator. Must be one of BORIS, VAY, or HIGUERA_CARY.')
+        __showError('Invalid integrator. Must be one of BORIS, VAY, or HIGUERA_CARY.', 101)
 
     global Control
     Control[TIME_STEP] = timeStep
@@ -73,22 +78,22 @@ def createParticles(
 
     # Validate inputs.
     if mass <= 0:
-        raise ValueError('Mass must be a positive float.')
+        __showError('Mass must be a positive float', 102)
     if particleCount <= 0:
-        raise ValueError('Particle count must be a positive integer.')
+        __showError('Particle count must be a positive integer', 102)
     if len(initialPosition) < 1:
-        raise ValueError('Initial position must be a tuple with at least one element.')
+        __showError('Initial position must be a tuple with at least one element', 102)
     if len(initialVelocity) < 1:
-        raise ValueError('Initial velocity must be a tuple with at least one element.')
+        __showError('Initial velocity must be a tuple with at least one element', 102)
     
     # Ensure that the initial positions provided are in correct format
     for r in initialPosition:
         if type(r) not in (Static, Uniform, Random):
-            raise ValueError('Initial positions must be Static, Uniform, or Random objects.')
+            __showError('Initial positions must be Static, Uniform, or Random objects.', 102)
     
     for v in initialVelocity:
         if type(v) not in (Static, Uniform, Maxwellian):
-            raise ValueError('Initial velocities must be Static, Uniform, or Maxwellian objects.')
+            __showError('Initial velocities must be Static, Uniform, or Maxwellian objects.', 102)
         
 
     global Particle
@@ -100,8 +105,8 @@ def createParticles(
 
 
 def createFields(
-        electricFields: Tuple | callable,
-        magneticFields: Tuple | callable):
+        electricFields: Tuple | Callable,
+        magneticFields: Tuple | Callable):
     '''
     Create the fields dict. 
     Parameters:
@@ -110,24 +115,32 @@ def createFields(
     '''
 
     supportedEleFields = (Static, SinField, GaussField, PointCharge, ElectricDipole)
-    supportedMagFields = (Static, SinField, GaussField, Coil)
+    supportedMagFields = (Static, SinField, GaussField, Wire, Coil)
 
     # Validate inputs.
-    if isinstance(electricFields, Tuple):
+    if electricFields is None:
+        electricFields = tuple([])
+
+    elif isinstance(electricFields, Tuple):
         for e in electricFields:
             if type(e) not in supportedEleFields:
-                raise ValueError(f'Electric fields must be one of {supportedEleFields}.')
+                __showError(f'Electric field must be one of {supportedEleFields} or be a callable function.', 103)
     else:
         if len(signature(electricFields).parameters) != 4:
-            raise ValueError('Electric field as a function must take four parameters: x, y, z, and t.')
-    
-    if isinstance(magneticFields, Tuple):
+            __showError('Electric field as a function must take four parameters: x, y, z, and t.', 103)
+
+    if magneticFields is None:
+        magneticFields = tuple([])
+
+    elif isinstance(magneticFields, Tuple):
         for b in magneticFields:
             if type(b) not in supportedMagFields:
-                raise ValueError(f'Magnetic fields must be one of {supportedMagFields}.')
+                __showError(f'Magnetic field must be one of {supportedMagFields} or be a callable function.', 103)
+
     else:
         if len(signature(magneticFields).parameters) != 4:
-            raise ValueError('Magnetic field as a function must take four parameters: x, y, z, and t.')
+            __showError('Magnetic field as a function must take four parameters: x, y, z, and t.', 103)
+
         
     global Fields
     Fields[E_FIELD] = electricFields
@@ -156,10 +169,11 @@ def createOutput(
         GAMMA)
 
     if not fileName:
-        raise ValueError('Output file name cannot be empty.')
+        __showError('Output file name cannot be empty.', 104)
+        exit(104)
     for v in dumpVariables:
         if v not in supportedDumpVariables:
-            raise ValueError(f'Invalid dump variable. Must be one of {supportedDumpVariables}.')
+            __showError('Invalid dump variable. Must be one of {supportedDumpVariables}.', 104)
 
     global Output
     Output[FILENAME] = fileName
