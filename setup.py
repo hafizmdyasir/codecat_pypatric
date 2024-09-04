@@ -19,11 +19,16 @@ from setuptools import setup
 
 setup(
     name='codecat_pypatric',
-    version='1.0',
+    version='0.9',
     packages=['codecat_pypatric'],
-    url='https://github.com/hafizmdyasir/codecat_pypatric',
-    license='GNU GPL Version 3',
+
     author='Mohammad Yasir',
     author_email='yasir.iitd@outlook.com',
-    description='Helper package for the PaTriC particle tracking code.'
+    
+    license='GNU GPL Version 3',
+    url='https://github.com/hafizmdyasir/codecat_pypatric',
+    description='Helper package for the PaTriC particle tracking code.',
+    
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown'
 )
