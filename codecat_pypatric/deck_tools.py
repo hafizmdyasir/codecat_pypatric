@@ -18,10 +18,10 @@ Tools to help write the deck
 from inspect import signature
 from typing import Callable, Tuple
 
-from electric import *
-from magnetic import *
-from classes import *
-from keys import *
+from codecat_pypatric.electric import *
+from codecat_pypatric.magnetic import *
+from codecat_pypatric.classes import *
+from codecat_pypatric.keys import *
 
 
 Control = {}
@@ -115,7 +115,7 @@ def createFields(
     '''
 
     supportedEleFields = (Static, SinField, GaussField, PointCharge, ElectricDipole)
-    supportedMagFields = (Static, SinField, GaussField, Wire, Coil)
+    supportedMagFields = (Static, SinField, GaussField, Coil)
 
     # Validate inputs.
     if electricFields is None:

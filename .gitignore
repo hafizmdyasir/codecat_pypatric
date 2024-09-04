@@ -1,2 +1,6 @@
 /codecat_pypatric/__pycache__
 *.pyc
+build/
+codecat_pypatric.egg-info/
+dist/
+venv/

@@ -18,12 +18,12 @@ from setuptools import setup
 
 
 setup(
-    name='pypatric',
+    name='codecat_pypatric',
     version='1.0',
     packages=['codecat_pypatric'],
-    url='https://github.com/hafizmdyasir/pypatric',
+    url='https://github.com/hafizmdyasir/codecat_pypatric',
     license='GNU GPL Version 3',
     author='Mohammad Yasir',
-    author_email='mohammad.yasir@physics.iitd.ac.in',
+    author_email='yasir.iitd@outlook.com',
     description='Helper package for the PaTriC particle tracking code.'
 )
