@@ -19,7 +19,7 @@ from setuptools import setup
 
 setup(
     name='codecat_pypatric',
-    version='0.9',
+    version='1.0',
     packages=['codecat_pypatric'],
 
     author='Mohammad Yasir',
